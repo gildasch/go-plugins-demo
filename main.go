@@ -2,19 +2,46 @@ package main
 
 import (
 	"os"
+	"path"
 	"plugin"
 )
 
-func main() {
-	for _, pName := range os.Args[1:] {
-		p, err := plugin.Open(pName)
+func getPlugins(pluginDir string) ([]func(string), error) {
+	pDir, err := os.Open(pluginDir)
+	if err != nil {
+		return nil, err
+	}
+	pFiles, err := pDir.Readdir(0)
+	if err != nil {
+		return nil, err
+	}
+
+	var ret []func(string)
+	for _, pFile := range pFiles {
+		if pFile.IsDir() {
+			continue
+		}
+		p, err := plugin.Open(path.Join(pluginDir, pFile.Name()))
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		sayHello, err := p.Lookup("SayHello")
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
-		sayHello.(func(string))("Gildas")
+		ret = append(ret, sayHello.(func(string)))
+	}
+	return ret, nil
+}
+
+func main() {
+	pluginDir := os.Args[1]
+
+	ps, err := getPlugins(pluginDir)
+	if err != nil {
+		panic(err)
+	}
+	for _, p := range ps {
+		p("Gildas")
 	}
 }

@@ -4,8 +4,17 @@ set -x
 
 # Compile plugins
 
-(cd plugin; docker run --rm -v "$PWD":/usr/src/plugin -w /usr/src/plugin golang:1.8 go build -buildmode=plugin)
-(cd plugin2; docker run --rm -v "$PWD":/usr/src/plugin2 -w /usr/src/plugin2 golang:1.8 go build -buildmode=plugin)
+pluginSrc='pluginSrc'
+pluginDirs=`ls $pluginSrc`
+mkdir -p plugins
+
+for i in ${pluginDirs}
+do
+    fullPath=${pluginSrc}/$i
+    (cd $fullPath; docker run --rm -v "$PWD":/usr/src/$fullPath -w /usr/src/$fullPath golang:1.8 go build -buildmode=plugin)
+done
+
+mv -f `find $pluginSrc -name '*.so'` plugins/
 
 # Compile main app
 
@@ -13,4 +22,4 @@ docker run --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp golang:1.8 go build
 
 # Run it
 
-./myapp plugin/plugin.so plugin2/plugin2.so
+./myapp plugins
