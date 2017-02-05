@@ -1,10 +1,23 @@
 package main
 
 import (
+	"log"
 	"os"
 	"path"
 	"plugin"
 )
+
+func loadPlugin(path string) (func(string), error) {
+	p, err := plugin.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	sayHello, err := p.Lookup("SayHello")
+	if err != nil {
+		return nil, err
+	}
+	return sayHello.(func(string)), nil
+}
 
 func getPlugins(pluginDir string) ([]func(string), error) {
 	pDir, err := os.Open(pluginDir)
@@ -21,15 +34,13 @@ func getPlugins(pluginDir string) ([]func(string), error) {
 		if pFile.IsDir() {
 			continue
 		}
-		p, err := plugin.Open(path.Join(pluginDir, pFile.Name()))
+
+		p, err := loadPlugin(path.Join(pluginDir, pFile.Name()))
 		if err != nil {
-			return nil, err
+			log.Printf("Failed to load pluging %s", p)
+		} else {
+			ret = append(ret, p)
 		}
-		sayHello, err := p.Lookup("SayHello")
-		if err != nil {
-			return nil, err
-		}
-		ret = append(ret, sayHello.(func(string)))
 	}
 	return ret, nil
 }
