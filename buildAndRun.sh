@@ -6,7 +6,7 @@ set -x
 
 pluginSrc='pluginSrc'
 pluginDirs=`ls $pluginSrc`
-mkdir -p plugins
+mkdir -p plugins.available plugins
 
 for i in ${pluginDirs}
 do
@@ -14,7 +14,7 @@ do
     (cd $fullPath; docker run --rm -v "$PWD":/usr/src/$fullPath -w /usr/src/$fullPath golang:1.8 go build -buildmode=plugin)
 done
 
-mv -f `find $pluginSrc -name '*.so'` plugins/
+mv -f `find $pluginSrc -name '*.so'` plugins.available/
 
 # Compile main app
 
