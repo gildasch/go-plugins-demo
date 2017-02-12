@@ -2,6 +2,8 @@ package main
 
 import "image"
 
+var Priority int = 1
+
 // Convert to grayscale image
 func Transform(src image.Image) image.Image {
 	bounds := src.Bounds()
