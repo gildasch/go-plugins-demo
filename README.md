@@ -13,6 +13,10 @@ To activate the plugins, move the `.so` files from the
 
 - Malicious plugin -> read a folder and write to image
   - Check source code?
+- Panic in plugin?
+- In presentation
+  - Add background about the solutions before the plugins: see the
+    presentation from the dotGo.
 
 ## Presentation
 
