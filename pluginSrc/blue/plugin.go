@@ -13,7 +13,7 @@ func Transform(src image.Image) image.Image {
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
 			_, _, b, _ := src.At(x, y).RGBA()
-			ret.Set(x, y, color.RGBA{0, 0, uint8(b / 255), 0})
+			ret.Set(x, y, color.RGBA{0, 0, uint8(b / 256), 0})
 		}
 	}
 	return ret
