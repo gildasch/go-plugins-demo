@@ -18,7 +18,7 @@ mv -f `find $pluginSrc -name '*.so'` plugins.available/
 
 # Compile main app
 
-docker run --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp golang:1.8 go build
+docker run --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp golang:1.8 /bin/bash -c "go get golang.org/x/net/websocket && go build"
 
 # Run it
 

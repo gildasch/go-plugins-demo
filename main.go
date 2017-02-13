@@ -10,6 +10,9 @@ import (
 	"os"
 	"path"
 	"plugin"
+	"time"
+
+	"golang.org/x/net/websocket"
 )
 
 type Transformer struct {
@@ -95,11 +98,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	jpeg.Encode(w, i, nil)
 }
 
+func wsHandler(ws *websocket.Conn) {
+	for true {
+		fmt.Fprintf(ws, "echp")
+		time.Sleep(200 * time.Millisecond)
+	}
+}
+
 var pluginDir string
 
 func main() {
 	pluginDir = os.Args[1]
 
 	http.HandleFunc("/a.jpg", handler)
+	http.Handle("/ws", websocket.Handler(wsHandler))
 	http.ListenAndServe(":8080", nil)
 }
