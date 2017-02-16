@@ -12,6 +12,7 @@ import (
 	"plugin"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"golang.org/x/net/websocket"
 )
 
@@ -77,25 +78,35 @@ func getPlugins(pluginDir string) (map[int][]*Transformer, error) {
 	return ret, nil
 }
 
+var processed image.Image
+
+func processImage(events <-chan fsnotify.Event) {
+	for {
+		fi, _ := os.Open("lca.jpg")
+		i, _ := jpeg.Decode(fi)
+
+		plugins, err := getPlugins(pluginDir)
+		if err != nil {
+			panic(err)
+		}
+
+		for _, p := range plugins[1] {
+			fmt.Println("Apply", p.name)
+			i = p.t(i)
+		}
+		for _, p := range plugins[0] {
+			fmt.Println("Apply", p.name)
+			i = p.t(i)
+		}
+		processed = i
+
+		// Wait for a change in folder
+		<-events
+	}
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
-	fi, _ := os.Open("lca.jpg")
-	i, _ := jpeg.Decode(fi)
-
-	plugins, err := getPlugins(pluginDir)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, p := range plugins[1] {
-		fmt.Println("Apply", p.name)
-		i = p.t(i)
-	}
-	for _, p := range plugins[0] {
-		fmt.Println("Apply", p.name)
-		i = p.t(i)
-	}
-
-	jpeg.Encode(w, i, nil)
+	jpeg.Encode(w, processed, nil)
 }
 
 func wsHandler(ws *websocket.Conn) {
@@ -109,6 +120,17 @@ var pluginDir string
 
 func main() {
 	pluginDir = os.Args[1]
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	go processImage(watcher.Events)
+	err = watcher.Add(pluginDir)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	http.HandleFunc("/a.jpg", handler)
 	http.Handle("/ws", websocket.Handler(wsHandler))
