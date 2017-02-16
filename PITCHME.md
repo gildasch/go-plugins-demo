@@ -18,10 +18,23 @@ Gildas Chabot, leboncoin
 
 #HSLIDE
 
+## Need?
+
+- Extend a service with third party functions
+  - Web server
+  - Media player
+- Update behaviour at runtime
+
+#HSLIDE
+
 ## Before
 
 - Add plugins at compile time (Caddy)
 - HTTP/RPC calls
+
+https://github.com/hashicorp/go-plugin
+https://github.com/natefinch/pie
+
 
 #HSLIDE
 
@@ -41,6 +54,10 @@ Gildas Chabot, leboncoin
 - Two types:
   - `Plugin`
   - `Symbol`
+- When the plugin if first `Open`, all _new_ packages have their
+  `init` function called
+
+See https://tip.golang.org/pkg/plugin/
 
 #HSLIDE
 
@@ -58,12 +75,6 @@ v, ok = *vs.(*int)
 
 #HSLIDE
 
-## Need?
-
-- Add ---
-
-#HSLIDE
-
 ## Safety?
 
 - Plugin == safe?
@@ -74,17 +85,18 @@ v, ok = *vs.(*int)
 
 ## Stable?
 
-- What happens on `panic`?
-- --- <!-- .element: class="fragment" -->
+- Invalid `.so` file
+  - `fatal error: runtime: no plugin module data`
+- Can `panic` during execution
 
 #HSLIDE
 
 ## Go + C?
 
 - Go plugin used in C
-  - Already done with ---  <!-- .element: class="fragment" -->
+  - Already done with -buildmode=shared <!-- .element: class="fragment" -->
 - C `.so` loaded in Go
-  - For now, error --- <!-- .element: class="fragment" -->
+  - For now, error "no plugin module data" <!-- .element: class="fragment" -->
 
 #HSLIDE
 
