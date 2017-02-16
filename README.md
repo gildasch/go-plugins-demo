@@ -20,6 +20,8 @@ To activate the plugins, move the `.so` files from the
 
 ## Presentation
 
+Online here: https://gitpitch.com/gildasch/go-plugins-demo
+
 - Add Go code at runtime
 - Works only on linux for now
 - Based on `dlfcn.h` (dynamic linking) with `cgo`
