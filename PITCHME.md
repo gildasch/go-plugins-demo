@@ -32,8 +32,9 @@ Gildas Chabot, leboncoin
 - Add plugins at compile time (Caddy)
 - HTTP/RPC calls
 
-https://github.com/hashicorp/go-plugin
-https://github.com/natefinch/pie
+- Check:
+  - https://github.com/hashicorp/go-plugin
+  - https://github.com/natefinch/pie
 
 
 #HSLIDE
