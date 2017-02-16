@@ -10,7 +10,6 @@ import (
 	"os"
 	"path"
 	"plugin"
-	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"golang.org/x/net/websocket"
@@ -79,6 +78,7 @@ func getPlugins(pluginDir string) (map[int][]*Transformer, error) {
 }
 
 var processed image.Image
+var listeners []chan bool
 
 func processImage(events <-chan fsnotify.Event) {
 	for {
@@ -99,6 +99,9 @@ func processImage(events <-chan fsnotify.Event) {
 			i = p.t(i)
 		}
 		processed = i
+		for _, l := range listeners {
+			l <- true
+		}
 
 		// Wait for a change in folder
 		<-events
@@ -110,9 +113,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func wsHandler(ws *websocket.Conn) {
-	for true {
+	l := make(chan bool)
+	listeners = append(listeners, l) // Should have mutex
+	for {
 		fmt.Fprintf(ws, "echp")
-		time.Sleep(200 * time.Millisecond)
+		<-l
 	}
 }
 
